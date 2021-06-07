@@ -5,5 +5,4 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>When you want to know how much you have been on some task like reading this program cover your need .all what you have to is to clone this repo in the folder you want then execute (time.py) when you done it will store all the data in statusdb folder in a txt files orgnaized by date .</h1>
 </body>
