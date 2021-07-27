@@ -14,6 +14,19 @@ import datetime
 # TODO > calculate the total time spent in the same format
 # by all time (save_time_total) $ALL_TIME
 
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKCYAN = '\033[96m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 # allTimeStart == tstart
 allTimeStart = []
 # allTimeStop == tstop
@@ -21,9 +34,38 @@ allTimeStop = []
 
 etimstat = time.strftime("%I:%M:%S")
 tume = datetime.datetime.now()
+print("""%s
+[1]برمجة
+[2]العاب
+[3]ميكانيكية
+[4]كهربية
+[5]علم المواد
+[6]ديناميكية
+[7]تحليلية
+[8]تفاضلية
+[9]كيمياء
+[10]اشياء اخرى
+%s""" %(bcolors.OKBLUE, bcolors.ENDC))
 
-shelfFile = shelve.open("./db/db")
-shelfFileDay = shelve.open("./db/db%s" % tume.day)
+ent = input("Enter : ")
+if ent == "":
+	ent = 0
+else:
+	ent = int(ent)
+lisent = [0, "programming", "gaming", "mechanic", "electric", "material",
+          "dynamics", "analysis", "deffrential_eq", "chemics", "other_staff"]
+try:
+    shelfFile = shelve.open(
+        "/home/ki2kid/dev/python/timer/%s/db/db" % lisent[ent])
+    shelfFileDay = shelve.open(
+        "/home/ki2kid/dev/python/timer/%s/db/db%s" % (lisent[ent], tume.day))
+except Exception:
+    os.mkdir("/home/ki2kid/dev/python/timer/%s/" % lisent[ent])
+    os.mkdir("/home/ki2kid/dev/python/timer/%s/db" % lisent[ent])
+    shelfFile = shelve.open(
+        "/home/ki2kid/dev/python/timer/%s/db/db" % lisent[ent])
+    shelfFileDay = shelve.open(
+        "/home/ki2kid/dev/python/timer/%s/db/db%s" % (lisent[ent], tume.day))
 
 
 def start_time():
@@ -179,34 +221,37 @@ the counter has been started since you see this message ...
         days = round(round(save_time)/(60*60*24), 2)
 
         if round(round(save_time)/(60*60), 2) >= 15:
-            print(f"\ntime {seconds} seconds >> \
+            print(f"\n{bcolors.HEADER}time {seconds} seconds >> \
 {minutes} minute >> \
 {hours} hours >> \
-{days} days  ⚠️")
+{days} days  {bcolors.ENDC}⚠️")
 
         elif round(round(save_time)/(60)) < 15:
-            print(f"\ntime {round(save_time)} seconds >> \
-{round(round(save_time)/60, 2)} minute")
+            print(f"\n{bcolors.HEADER}time {round(save_time)} seconds >> \
+{round(round(save_time)/60, 2)} minute{bcolors.ENDC}⚠️")
 
         else:
-            print(f"\ntime {seconds} seconds >> \
+            print(f"\n{bcolors.HEADER}time {seconds} seconds >> \
 {minutes} minute >> \
 {hours} hours >> \
-{days} days")
+{days} days{bcolors.ENDC}⚠️")
         n = False
 
-print("\nstarted at", etimstat)
-print("Ended at ", time.strftime("%I:%M:%S"))
+print(f"\n{bcolors.OKCYAN}started at", etimstat)
+print("Ended at ", time.strftime("%I:%M:%S"), f"{bcolors.ENDC}")
 
 try:
     shelfFile["cats"] += allTimeStart
     shelfFile["dogs"] += allTimeStop
+except Exception:
+    shelfFile["cats"] = allTimeStart
+    shelfFile["dogs"] = allTimeStop
+
+try:
     # for day
     shelfFileDay["cats"] += allTimeStart
     shelfFileDay["dogs"] += allTimeStop
 except Exception:
-    shelfFile["cats"] = allTimeStart
-    shelfFile["dogs"] = allTimeStop
     # for day
     shelfFileDay["cats"] = allTimeStart
     shelfFileDay["dogs"] = allTimeStop
@@ -243,13 +288,14 @@ def total_time_from_creating_this_program():
     zx = 0
     for i in x:
         zx += i
-    print("total time this program was running since first launch is :")
+    print(f"{bcolors.OKBLUE}total time this program was running since first launch is :{bcolors.ENDC}")
     return zx
 
 
 TOTAL = total_time_from_creating_this_program()
-TOTALDAY = total_time_today_for_this_program()
 shelfFile.close()
+TOTALDAY = total_time_today_for_this_program()
+shelfFileDay.close()
 
 final = ('"'+str(round(TOTAL))+' seconds >> \
 '+str(round(TOTAL/60, 2))+' minute >> \
@@ -264,8 +310,32 @@ finalday = ('"'+str(round(TOTALDAY))+' seconds >> \
 print(final)
 # os.system("echo %s >> ./status.txt" % str(final))
 tumme = f"{tume.day}_{tume.month}_{tume.year}"
-os.system("echo %s >> ./statusdb/status%s.txt" % (str(final), tumme))
-os.system("echo %s >> ./statusdb/bydays/status%s.txt" % (str(finalday), tumme))
+
+try:
+    os.mkdir("/home/ki2kid/dev/python/timer/%s/statusdb" % lisent[ent])
+except Exception:
+    pass
+
+try:
+    os.mkdir("/home/ki2kid/dev/python/timer/%s/statusdb/bydays" % lisent[ent])
+except Exception:
+    pass
+
+
+# SAVE
+os.system("echo %s > /home/ki2kid/dev/python/timer/%s/statusdb/status%s.txt" %
+          (str(final), lisent[ent], tumme))
+
+os.system("echo %s > /home/ki2kid/dev/python/timer/%s/statusdb/bydays/status%s.txt" %
+          (str(finalday), lisent[ent], tumme))
+
+print(f"""{bcolors.OKBLUE}
+[s]show today status
+{bcolors.ENDC}""")
+endore = input("or press any key to exit ... ")
+if endore == "s":
+    os.system("less /home/ki2kid/dev/python/timer/%s/statusdb/bydays/status%s.txt" %
+              (lisent[ent], tumme))
 
 # while True:
 #     print(finalday, end="\r")
